@@ -9,14 +9,13 @@
 # libraries are in /usr/local/lib
 # and rtl-* executables are in /usr/local/bin
 # 
-
 FROM debian:bookworm-slim AS build
 
 WORKDIR /work
 
 RUN <<EOR
-    apt-get -y update && \
-    apt-get -y install libusb-1.0-0-dev git cmake build-essential pkg-config && \
+    apt-get -yq update && \
+    apt-get -yq install libusb-1.0-0-dev git cmake build-essential pkg-config && \
     git clone https://github.com/rtlsdrblog/rtl-sdr-blog
 
     cd rtl-sdr-blog
@@ -26,10 +25,10 @@ RUN <<EOR
     make
     make install
 
-    cat <<EOF >/usr/local/bin/rtl-tcp.sh
-#!/bin/sh
+    cat << 'EOF' >/usr/local/bin/rtl-tcp.sh
+#!/bin/bash
 set -e
-if [ -n $RTL_SERIAL ]; then
+if [ $RTL_SERIAL ]; then
     RTL_INDEX=$(rtl_tcp -d9999 2>&1 | grep -o "\d.*SN: $RTL_SERIAL" | cut -c1-1)
 fi
 
@@ -51,11 +50,14 @@ COPY --from=build /usr/local/bin/* ../bin
 COPY --from=build /usr/local/lib/librtlsdr.so.0.6git .
 
 RUN <<EOR
-    apk add --no-cache libusb gcompat
+    apk --no-cache add libusb gcompat bash
     ln -s librtlsdr.so.0.6git librtlsdr.so.0
     ln -s /librtlsdr.so.0 librtlsdr.so
     adduser -D sdr
     adduser sdr sdr
-    cd /
+    chmod +x /usr/local/bin/*
 EOR
+
+WORKDIR /usr/local/bin
 USER sdr
+CMD ["sh"]

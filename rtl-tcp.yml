@@ -17,7 +17,7 @@ name: rtl-tcp
 services:
   rtl-tcp:
     container_name: rtl-tcp
-    image: rtlsdr4:latest
+    image: dgadams/rtlsdr4:latest
     restart: unless-stopped
     command: /usr/local/bin/rtl-tcp.sh
     devices:
