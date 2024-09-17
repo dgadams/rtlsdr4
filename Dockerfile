@@ -53,11 +53,5 @@ RUN <<EOR
     apk --no-cache add libusb gcompat bash
     ln -s librtlsdr.so.0.6git librtlsdr.so.0
     ln -s /librtlsdr.so.0 librtlsdr.so
-    adduser -D sdr
-    adduser sdr sdr
     chmod +x /usr/local/bin/*
 EOR
-
-WORKDIR /usr/local/bin
-USER sdr
-CMD ["sh"]
