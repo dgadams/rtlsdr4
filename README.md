@@ -4,7 +4,7 @@ Docker image for RTLSDR version 4.
 Includes the libraries and binaries for the version 4
 RTLSDR DTV Stick.  Works with earlier versions also.
 
-This image is is based on Debian Linux.
+This image is is based on Alpine Linux.
 
 The standard suite of RTL_* binaries are available in /usr/local/bin
 Libraries can be found in /usr/local/lib
@@ -44,4 +44,12 @@ services:
       - /dev/bus/usb
     ports:
       - 1234:1234
+```
+## Example /etc/udev/rules.d/68-RTL-SDR.rules file.  Must live on Docker host machine
+```
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda",  MODE:="0666"
+```
+## Be sure to blacklist default rtlsdr modules in linux host machine
+```
+sudo echo -e "\nblacklist dvb_usb_rtl28xxu\nblacklist rtl2832\nblacklist rtl2830" >> /etc/modprobe.d/blacklist.conf
 ```
