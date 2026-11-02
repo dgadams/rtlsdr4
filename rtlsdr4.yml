@@ -17,16 +17,26 @@
 #	[-T enable bias-T on GPIO PIN 0 (works for rtl-sdr.com v3/v4 dongles)]
 #	[-D enable direct sampling (default: off)]
 
-name: rtl-tcp
+name: rtlsdr4
 services:
-  rtl-tcp:
-    container_name: rtl-tcp
+  rtlsdr4:
+    container_name: rtlsdr4
     image: dgadams/rtlsdr4:latest
     restart: unless-stopped
-    command: "rtl_tcp -d 1 -a 0.0.0.0 -p 1234"
+#    network_mode: host
+    command: "rtl_tcp -d0 -g3 -a '0.0.0.0' -p1234"
     devices:
       - /dev/bus/usb
     ports:
       - 1234:1234
-    environment:
-      - RTL_SERIAL=4
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: timeout 2 nc host.docker.internal 1234 || [ $$? -eq 143 ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+#    environment:
+#      - RTL_SERIAL=4
