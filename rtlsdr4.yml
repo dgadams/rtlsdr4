@@ -23,20 +23,15 @@ services:
     container_name: rtlsdr4
     image: dgadams/rtlsdr4:latest
     restart: unless-stopped
-#    network_mode: host
     command: "rtl_tcp -d0 -g3 -a '0.0.0.0' -p1234"
     devices:
-      - /dev/bus/usb
+      - /dev/bus/usb:/dev/bus/usb
     ports:
       - 1234:1234
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     healthcheck:
-      test: timeout 2 nc host.docker.internal 1234 || [ $$? -eq 143 ]
+      test: nc -z 127.0.0.1 1234
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 15s
+      start_period: 10s
 
-#    environment:
-#      - RTL_SERIAL=4
