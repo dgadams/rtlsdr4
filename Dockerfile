@@ -9,7 +9,7 @@
 # libraries are in /usr/local/lib
 # and rtl-* executables are in /usr/local/bin
 #
-FROM alpine AS dga-build
+FROM alpine AS build1
 
 WORKDIR /work
 RUN <<EOR
@@ -20,13 +20,13 @@ RUN <<EOR
     mkdir build
     cd build
     cmake ../
-    make
+    make rtl_tcp
     make install
 EOR
 
-FROM alpine AS dga-filesys
+FROM alpine AS muntz
 
-COPY --from=dga-build /usr/local /usr/local
+COPY --from=build1 /usr/local /usr/local
 
 RUN <<EOR
     apk update
@@ -41,8 +41,9 @@ RUN <<EOR
         cd /usr/lib         && rm -rf !(libusb*)
         cd /usr/local       && rm -rf !(bin|lib)
         cd /usr/local/lib   && rm -rf !(librtlsdr.so*)
+        cd /usr/local/bin   && rm -rf !(rtl_tcp)
         cd /lib             && rm -rf !(libc*|ld-musl*)
-        cd /etc             && rm -rf !(group|passwd|shadow)
+        cd /etc             && rm -rf !(group|passwd)
         rm /sbin/apk
         cd /usr/bin && rm getconf getent iconv ldd scanelf ssl_client
 
@@ -52,7 +53,7 @@ EOR
 ##############################
 
 FROM scratch
-COPY --from=dga-filesys / /
+COPY --from=muntz / /
 USER nobody
 
 # No startup command.  Use the compose file to specify startup.
