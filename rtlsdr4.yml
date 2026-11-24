@@ -28,10 +28,3 @@ services:
       - /dev/bus/usb:/dev/bus/usb
     ports:
       - 1234:1234
-    healthcheck:
-      test: "netstat -tnl | grep -q ':1234 ' || netstat -tn | grep -q ':1234 '"
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-

@@ -94,5 +94,8 @@ EOR
 FROM scratch
 COPY --from=build /out/ /
 USER nobody
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD netstat -tnl | grep -q ':1234 ' \
+   || netstat -tn | grep -q ':1234 ' || exit 1
 
 # No startup command.  Use the compose file to specify startup.
